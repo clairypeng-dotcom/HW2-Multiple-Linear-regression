@@ -180,7 +180,7 @@ function fetchAndProcessCsvUrl(url, preferredTarget = null, title = null) {
       if (results.data && results.data.length > 0) {
         if (statusEl) statusEl.textContent = `成功載入 ${results.data.length} 筆資料！`;
         window.lastParsedCsvRows = results.data;
-        window.lastDatasetTitle = title || (url.includes('50_Startups') ? '50 Startups 獲利預測' : '自訂資料集');
+        window.lastDatasetTitle = title || (url.includes('50_Startups') ? '50 Startups 範例資料集' : '自訂資料集');
         processCsvRows(results.data, preferredTarget, window.lastDatasetTitle, url);
       } else {
         if (statusEl) statusEl.textContent = '資料解析失敗或內容為空。';
@@ -373,8 +373,8 @@ function processCsvRows(rawRows, userTargetCol = null, datasetName = '自訂資�
   dynamicCustomData = {
     metadata: {
       projectId: 'custom',
-      title: `${datasetName} 回歸預測分析`,
-      titleEn: `${datasetName} Regression Studio`,
+      title: '自訂資料集迴歸分析平台',
+      titleEn: 'Custom Dataset Analytics Studio',
       studentId: '7115056187',
       datasetName: `${datasetName} (${validRows.length} 筆樣本)`,
       datasetUrl: sourceUrl || '自訂輸入資料',

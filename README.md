@@ -12,7 +12,7 @@
 同時，本專案打造了一個現代化、高質感的**多主題互動式分析網頁平台**，內建即時 OLS 迴歸推論引擎，支援切換與分析：
 1. 🌊 **洪水機率預測 (Flood Probability Prediction)**：Kaggle S4E5 合成資料集 (111.8 萬筆)
 2. 🤖 **人機互動信任度分析 (Human-AI Interaction Trust)**：10,100 筆人機互動實證資料集
-3. 🌐 **自訂資料集即時分析 (Custom Dataset URL / 50 Startups)**：支援任意公開 CSV 網址輸入（如 50 Startups 獲利預測）或檔案上傳，純前端即時計算迴歸參數。
+3. 🌐 **自訂資料集即時分析 (Custom Dataset URL / Upload)**：支援任意公開 CSV 網址輸入（預設 50 Startups 範例）或檔案上傳，純前端即時計算迴歸參數。
 
 ---
 
@@ -32,7 +32,7 @@ open http://localhost:8088/
 
 ## 🔬 核心分析主題與評估指標比較
 
-| 分析主題 | 🌊 洪水機率預測 (Flood) | 🤖 人機互動信任度 (HAI) | 🏢 50 Startups 獲利預測 |
+| 分析主題 | 🌊 洪水機率預測 (Flood) | 🤖 人機互動信任度 (HAI) | 🌐 自訂資料集分析 (50 Startups 範例) |
 | :--- | :--- | :--- | :--- |
 | **資料來源** | Kaggle S4E5 Dataset | Human-AI Interaction Dataset | Avik-Jain 100-Days-Of-ML-Code |
 | **資料筆數** | 1,117,957 筆 (80/20 切分) | 10,100 筆 (80/20 切分) | 50 筆 (80/20 切分) |
