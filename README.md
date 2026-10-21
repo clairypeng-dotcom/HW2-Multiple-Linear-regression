@@ -2,6 +2,10 @@
 > **學生編號 (Student ID)**: `7115056187`  
 > **課程作業**: 資料探勘作業二 (HW2 - Multiple Linear Regression)  
 > **GitHub Repository**: [https://github.com/clairypeng-dotcom/HW2-Multiple-Linear-regression.git](https://github.com/clairypeng-dotcom/HW2-Multiple-Linear-regression.git)
+https://clairypeng-dotcom.github.io/HW2-Multiple-Linear-regression/
+>
+> <img width="909" height="471" alt="截圖 2026-10-21 下午6 43 59" src="https://github.com/user-attachments/assets/bb2048b8-5876-4922-8ada-34d4147d9472" />
+<img width="1440" height="823" alt="截圖 2026-10-21 下午5 39 49" src="https://github.com/user-attachments/assets/e52b29c5-8311-4d1f-97df-6f017cb0672b" />
 
 ---
 
