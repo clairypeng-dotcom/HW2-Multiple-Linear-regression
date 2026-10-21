@@ -1,0 +1,11 @@
+Step,Feature,Validation_R2
+1,trust_history,0.20149837066880438
+2,ui_complexity,0.34790344199468304
+3,bias_level,0.46154082289620124
+4,feedback_quality,0.5524129776523494
+5,error_rate,0.6365646781016718
+6,cognitive_load,0.6679600227336958
+7,model_accuracy,0.669391390569064
+8,override_frequency,0.6702008579890022
+9,education_level,0.670779629639164
+10,regulatory_strictness,0.6709870108820032

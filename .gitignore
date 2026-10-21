@@ -1,0 +1,26 @@
+# Python Virtual Environment
+.venv/
+venv/
+ENV/
+env/
+
+# Python Cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# OS / Temporary Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+~$*
+scratch*
+
+# Large Kaggle Datasets (Exceeding recommended git limit)
+data/train.csv
+data/test.csv
+data/sample_submission.csv

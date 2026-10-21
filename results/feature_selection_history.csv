@@ -1,0 +1,11 @@
+Step,Feature,Validation_R2
+1,PoliticalFactors,0.042472360754243765
+2,DeterioratingInfrastructure,0.08233724222310912
+3,RiverManagement,0.1211551722154457
+4,CoastalVulnerability,0.15967336769320006
+5,WetlandLoss,0.19746653361511535
+6,Landslides,0.23711761927466957
+7,ClimateChange,0.2773357356240923
+8,DrainageSystems,0.316503016200959
+9,TopographyDrainage,0.356049750402485
+10,PopulationScore,0.3965065544651315

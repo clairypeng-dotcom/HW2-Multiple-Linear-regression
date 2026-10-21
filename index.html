@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title id="pageTitle">HW2 迴歸分析與 CRISP-DM 平台 | 7115056187</title>
+  <meta name="description" content="7115056187 HW2 資料探勘分析平台：整合洪水機率預測 (Flood Probability) 與人機互動信任度分析 (Human-AI Interaction)，遵循 CRISP-DM 架構，進行多元線性迴歸、Ridge、Lasso、Forward Selection 特徵選擇、95% 預測區間與即時推論模擬。">
+  <meta name="keywords" content="Flood Probability, Human-AI Interaction, Machine Learning, Linear Regression, Ridge, Lasso, Forward Selection, CRISP-DM">
+  <meta name="author" content="7115056187">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <!-- PapaParse for arbitrary CSV parsing -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Top Navigation -->
+  <header class="navbar">
+    <div class="container nav-wrapper">
+      <a href="#" class="nav-brand">
+        <div class="brand-icon" id="brandIcon">
+          <i class="fa-solid fa-water"></i>
+        </div>
+        <div class="brand-text">
+          <h1 id="brandTitle">Flood Risk Analytics</h1>
+          <span id="brandSub">HW2 Regression & CRISP-DM Studio</span>
+        </div>
+      </a>
+
+      <ul class="nav-links">
+        <li><a href="#crisp-dm" class="nav-link">CRISP-DM</a></li>
+        <li><a href="#eda" class="nav-link">探索性分析 (EDA)</a></li>
+        <li><a href="#features" class="nav-link">特徵庫</a></li>
+        <li><a href="#forward-selection" class="nav-link">特徵選擇</a></li>
+        <li><a href="#models" class="nav-link">模型比較</a></li>
+        <li><a href="#prediction-interval" class="nav-link">預測區間</a></li>
+        <li><a href="#simulator" class="nav-link">即時模擬器</a></li>
+        <li><a href="#literature" class="nav-link">文獻探討</a></li>
+        <li><a href="#downloads" class="nav-link">檔案下載</a></li>
+      </ul>
+
+      <div class="nav-actions">
+        <!-- Project Switcher Dropdown -->
+        <div class="project-switcher-wrap" title="切換分析主題">
+          <i class="fa-solid fa-layer-group switcher-icon"></i>
+          <select id="projectSelector" class="project-select" aria-label="切換分析專案">
+            <option value="flood">🌊 洪水機率預測 (Flood Probability)</option>
+            <option value="hai">🤖 人機互動信任度 (Human-AI Trust)</option>
+            <option value="custom" selected>🌐 自訂資料集分析 (Custom Dataset URL / 50 Startups)</option>
+          </select>
+        </div>
+
+        <button id="themeToggleBtn" class="theme-toggle-btn" title="切換明亮/暗黑主題" aria-label="切換主題">
+          <i class="fa-solid fa-moon"></i>
+        </button>
+        <a href="https://github.com/clairypeng-dotcom/HW2-Multiple-Linear-regression.git" target="_blank" rel="noopener noreferrer" class="theme-toggle-btn" title="前往 GitHub 儲存庫" aria-label="GitHub Repository">
+          <i class="fa-brands fa-github"></i>
+        </a>
+        <a href="#simulator" class="btn-nav-action">
+          <i class="fa-solid fa-bolt"></i>
+          <span id="navActionText">即時推論</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-badge-wrap">
+        <span class="hero-badge" id="heroBadgeTopic"><i class="fa-solid fa-chart-line"></i> Kaggle S4E5 實證分析</span>
+        <span class="hero-badge student-badge"><i class="fa-solid fa-id-card"></i> 學生編號：7115056187</span>
+        <span class="hero-badge" style="background: rgba(16, 185, 129, 0.12); color: #34d399; border-color: rgba(16, 185, 129, 0.25);">
+          <i class="fa-solid fa-circle-check"></i> CRISP-DM 六階段完整實作
+        </span>
+        <a href="https://github.com/clairypeng-dotcom/HW2-Multiple-Linear-regression.git" target="_blank" rel="noopener noreferrer" class="hero-badge" style="background: rgba(255, 255, 255, 0.08); color: var(--text-main); text-decoration: none;" title="查看 GitHub 原始碼">
+          <i class="fa-brands fa-github"></i> clairypeng-dotcom/HW2-Multiple-Linear-regression
+        </a>
+      </div>
+
+      <h1 class="hero-title" id="heroTitle">洪水機率預測分析平台</h1>
+      <p class="hero-subtitle" id="heroSubtitle">
+        以多元線性迴歸 (MLR)、L2 Ridge、L1 Lasso 及 Forward Selection 進行大規模合成資料之水患風險特徵篩選與建模。結合 95% 預測區間統計檢驗與即時互動預測引擎。
+      </p>
+
+      <!-- Custom Dataset Input Control Bar -->
+      <div id="customDatasetBar" class="custom-dataset-bar">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
+          <div>
+            <strong style="font-size: 1.05rem; color: var(--text-main);"><i class="fa-solid fa-cloud-arrow-down" style="color: var(--accent-cyan); margin-right: 8px;"></i>自訂資料集輸入與即時分析引擎</strong>
+            <div style="font-size: 0.8rem; color: var(--text-dim); margin-top: 2px;">輸入任意公開 CSV 網址（如 GitHub raw），或點選上傳本地 CSV 檔案</div>
+          </div>
+          <div class="target-select-wrap">
+            <label for="customTargetSelect" style="color: var(--text-muted); font-size: 0.82rem;">預測目標欄位 (Target)：</label>
+            <select id="customTargetSelect" class="target-select">
+              <option value="Profit" selected>Profit</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="custom-input-row">
+          <input type="text" id="customUrlInput" class="custom-url-input" value="https://raw.githubusercontent.com/Avik-Jain/100-Days-Of-ML-Code/master/datasets/50_Startups.csv" placeholder="輸入 CSV 檔案 URL 網址...">
+          <button id="btnFetchCustom" class="btn-custom-action"><i class="fa-solid fa-bolt"></i> 載入並即時分析</button>
+          <label for="csvFileInput" class="btn-custom-secondary" style="cursor: pointer;">
+            <i class="fa-solid fa-file-arrow-up"></i> 上傳本地 CSV
+            <input type="file" id="csvFileInput" accept=".csv" style="display: none;">
+          </label>
+        </div>
+
+        <div class="custom-quick-pills">
+          <span>快速範例切換：</span>
+          <button class="quick-pill-btn" onclick="loadSamplePreset('startups')">🏢 50 Startups (新創獲利預測)</button>
+          <button class="quick-pill-btn" onclick="loadSamplePreset('boston')">🏠 Boston Housing (房價預測)</button>
+          <span id="customLoadingStatus" style="margin-left: auto; font-family: 'JetBrains Mono'; font-size: 0.8rem; color: var(--accent-emerald);"></span>
+        </div>
+      </div>
+
+
+      <!-- Stat Cards -->
+      <div class="stat-cards-grid">
+        <div class="stat-card">
+          <div class="stat-header">
+            <span class="stat-label">訓練資料總筆數</span>
+            <div class="stat-icon"><i class="fa-solid fa-database"></i></div>
+          </div>
+          <div class="stat-value" id="statRows">1,117,957</div>
+          <div class="stat-desc" id="statRowsDesc">訓練集 894,365 筆 (80%) / 測試集 223,592 筆 (20%)</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-header">
+            <span class="stat-label">環境特徵維度</span>
+            <div class="stat-icon"><i class="fa-solid fa-layer-group"></i></div>
+          </div>
+          <div class="stat-value" id="statFeatures">20 <span style="font-size: 1rem; color: var(--text-dim);">特徵</span></div>
+          <div class="stat-desc" id="statFeaturesDesc">缺失值總數 0 筆 / 經前向選擇提取 10 個核心特徵</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-header">
+            <span class="stat-label">最佳測試集 R²</span>
+            <div class="stat-icon"><i class="fa-solid fa-award"></i></div>
+          </div>
+          <div class="stat-value" id="statR2" style="color: var(--accent-emerald);">0.373864</div>
+          <div class="stat-desc" id="statR2Desc">MLR & Ridge 達到相同預測基準水準</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-header">
+            <span class="stat-label">平均絕對誤差 (MAE)</span>
+            <div class="stat-icon"><i class="fa-solid fa-bullseye"></i></div>
+          </div>
+          <div class="stat-value" id="statMae">0.032578</div>
+          <div class="stat-desc" id="statMaeDesc">均方根誤差 RMSE: 0.040342</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-header">
+            <span class="stat-label">95% 預測區間覆蓋率</span>
+            <div class="stat-icon"><i class="fa-solid fa-shield-halved"></i></div>
+          </div>
+          <div class="stat-value" id="statCoverage" style="color: var(--accent-cyan);">95.6%</div>
+          <div class="stat-desc" id="statCoverageDesc">500 筆測試樣本中 478 筆完美落於區間內</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 1: CRISP-DM Framework -->
+  <section class="section" id="crisp-dm">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <span class="section-tag">Methodology</span>
+          <h2><i class="fa-solid fa-diagram-project" style="color: var(--accent-cyan);"></i> CRISP-DM 六大階段實作流程</h2>
+          <p class="section-desc" id="crispSectionDesc">從商業與實務目標定義，貫徹資料理解、準備、建模、評估到部署之完整標準生命週期。</p>
+        </div>
+      </div>
+
+      <!-- Stepper Buttons -->
+      <div class="crisp-stepper" id="crispStepper">
+        <!-- Generated by JS -->
+      </div>
+
+      <!-- Detail Card -->
+      <div class="crisp-content-card" id="crispContentBox">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 2: EDA & Visualizations -->
+  <section class="section" id="eda">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <span class="section-tag">Exploratory Data Analysis</span>
+          <h2><i class="fa-solid fa-magnifying-glass-chart" style="color: var(--accent-cyan);"></i> 資料探索與分佈視覺化</h2>
+          <p class="section-desc">點擊下方圖表可開啟高解析度放大檢視，深入分析目標變數分佈形態與特徵相關性矩陣。</p>
+        </div>
+      </div>
+
+      <div class="gallery-grid" id="edaGalleryGrid">
+        <!-- Rendered dynamically by JS for Flood or HAI -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 3: 20 Features Dictionary -->
+  <section class="section" id="features">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <span class="section-tag">Feature Engineering</span>
+          <h2 id="featuresSectionTitle"><i class="fa-solid fa-book-bookmark" style="color: var(--accent-cyan);"></i> 20 項環境風險特徵庫辭典</h2>
+          <p class="section-desc" id="featuresSectionDesc">涵蓋各面向關鍵指標，支援分類篩選與關鍵字搜尋。</p>
+        </div>
+      </div>
+
+      <div class="feature-table-wrap">
+        <div class="table-filter-bar">
+          <div class="filter-tabs" id="featureFilterTabs">
+            <!-- Rendered by JS -->
+          </div>
+
+          <div class="search-input-wrap">
+            <i class="fa-solid fa-search"></i>
+            <input type="text" id="featureSearchInput" class="search-input" placeholder="搜尋特徵代碼、中文名稱或說明...">
+          </div>
+        </div>
+
+        <div style="overflow-x: auto;">
+          <table class="data-table" id="featuresTable">
+            <thead>
+              <tr>
+                <th style="width: 80px;">序號</th>
+                <th>特徵代碼 (Feature Key)</th>
+                <th>中文名稱</th>
+                <th>領域分類</th>
+                <th>特徵意涵與實務說明</th>
+                <th style="width: 140px;">前向選擇入選</th>
+              </tr>
+            </thead>
+            <tbody id="featuresTableBody">
+              <!-- Rendered by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 4: Forward Selection -->
+  <section class="section" id="forward-selection">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <span class="section-tag">Feature Selection</span>
+          <h2><i class="fa-solid fa-route" style="color: var(--accent-cyan);"></i> Forward Selection 前向逐步特徵選擇</h2>
+          <p class="section-desc" id="fsSectionDesc">透過逐步貪婪前向搜尋 (Greedy Forward Search)，每次選入能使驗證集 R² 提升幅度最大的關鍵特徵，避免維度過高與資料洩漏。</p>
+        </div>
+      </div>
+
+      <div class="fs-card-grid">
+        <!-- Steps List -->
+        <div class="fs-timeline-box">
+          <h3 style="font-size: 1.15rem; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between;">
+            <span>前向選擇 10 步歷程紀錄</span>
+            <span style="font-size: 0.82rem; font-weight: normal; color: var(--text-dim);" id="fsSampleNote">驗證集評估樣本</span>
+          </h3>
+          <div id="fsStepsContainer">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
+        <!-- Chart Container -->
+        <div class="fs-timeline-box" style="display: flex; flex-direction: column;">
+          <h3 style="font-size: 1.15rem; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-chart-line" style="color: var(--accent-emerald);"></i>
+            <span>驗證集 R² 增益軌跡曲線</span>
+          </h3>
+          <div style="flex: 1; min-height: 320px; position: relative;">
+            <canvas id="fsChart"></canvas>
+          </div>
+          <div style="margin-top: 16px; font-size: 0.85rem; color: var(--text-muted); background: rgba(0,0,0,0.2); padding: 12px 16px; border-radius: 8px;" id="fsInsightBox">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 5: Model Evaluation & Comparison -->
+  <section class="section" id="models">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <span class="section-tag">Model Benchmark & Residuals</span>
+          <h2><i class="fa-solid fa-scale-balanced" style="color: var(--accent-cyan);"></i> 多模型效能評估與殘差診斷</h2>
+          <p class="section-desc" id="modelsSectionDesc">在獨立測試集上，嚴謹評估多元線性迴歸、Ridge 與 Lasso 模型表現，並進行殘差常態性與同質性檢定。</p>
+        </div>
+      </div>
+
+      <!-- 3 Model Cards -->
+      <div class="models-grid" id="modelsGrid">
+        <!-- Rendered by JS -->
+      </div>
+
+      <!-- Diagnostic Images -->
+      <div class="gallery-grid" id="diagGalleryGrid" style="margin-top: 28px;">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 6: Prediction Interval & OLS In-depth -->
+  <section class="section" id="prediction-interval">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <span class="section-tag">Statistical Inference</span>
+          <h2><i class="fa-solid fa-chart-area" style="color: var(--accent-cyan);"></i> 95% 預測區間與 OLS 統計參數深入剖析</h2>
+          <p class="section-desc">預測單一數值不足以因應決策；透過 OLS 預測區間量化不確定性，並驗證覆蓋比例與區間寬度。</p>
+        </div>
+      </div>
+
+      <!-- PI Stat Banner -->
+      <div class="pi-banner-grid">
+        <div class="pi-banner-card">
+          <div class="pi-banner-icon"><i class="fa-solid fa-percent"></i></div>
+          <div class="pi-banner-info">
+            <h4>測試集 95% 預測區間覆蓋率</h4>
+            <div class="pi-banner-val" id="piCardCoverage">95.6%</div>
+            <div class="pi-banner-sub" id="piCardCoverageSub">500 筆測試樣本中 478 筆落在區間內</div>
+          </div>
+        </div>
+
+        <div class="pi-banner-card">
+          <div class="pi-banner-icon"><i class="fa-solid fa-arrows-left-right"></i></div>
+          <div class="pi-banner-info">
+            <h4>平均 95% 預測區間寬度</h4>
+            <div class="pi-banner-val" id="piCardWidth">0.1580</div>
+            <div class="pi-banner-sub" id="piCardWidthSub">單一預測值波動範圍</div>
+          </div>
+        </div>
+
+        <div class="pi-banner-card">
+          <div class="pi-banner-icon"><i class="fa-solid fa-vial-circle-check"></i></div>
+          <div class="pi-banner-info">
+            <h4>OLS 模型 F 檢定統計量</h4>
+            <div class="pi-banner-val" id="piCardFstat">2,971.0</div>
+            <div class="pi-banner-sub">P 值 = 0.000 (拒絕無效假設，模型顯著)</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PI Image & OLS Table -->
+      <div class="gallery-grid" style="grid-template-columns: 1.1fr 1fr; margin-bottom: 28px;">
+        <div class="image-card" id="piImageCardWrap">
+          <!-- Rendered by JS -->
+        </div>
+
+        <!-- OLS Coefficients Card -->
+        <div class="stat-card" style="display: flex; flex-direction: column;">
+          <h3 style="font-size: 1.15rem; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between;">
+            <span>OLS 迴歸特徵權重估計表</span>
+            <span style="font-size: 0.8rem; color: var(--accent-cyan);" id="olsInterceptBadge">截距 β₀</span>
+          </h3>
+          <div style="overflow-y: auto; max-height: 330px; flex: 1;">
+            <table class="data-table" style="font-size: 0.85rem;">
+              <thead>
+                <tr>
+                  <th>特徵名稱</th>
+                  <th>迴歸係數 (β)</th>
+                  <th>標準誤 (SE)</th>
+                  <th>t 統計量</th>
+                  <th>P 值</th>
+                </tr>
+              </thead>
+              <tbody id="olsParamsTableBody">
+                <!-- Rendered by JS -->
+              </tbody>
+            </table>
+          </div>
+          <div style="margin-top: 14px; font-size: 0.78rem; color: var(--text-dim); line-height: 1.5;" id="olsNoteText">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Prediction Interval Test Samples Interactive Table -->
+      <div class="feature-table-wrap">
+        <div class="table-filter-bar">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <h3 style="font-size: 1rem; font-weight: 700;">500 筆測試樣本預測區間明細檢驗</h3>
+            <span style="font-size: 0.8rem; color: var(--text-dim);">點擊可搜尋特定數值範圍</span>
+          </div>
+          <div class="search-input-wrap">
+            <i class="fa-solid fa-filter"></i>
+            <input type="text" id="piSampleSearch" class="search-input" placeholder="篩選實際值或預測值...">
+          </div>
+        </div>
+
+        <div style="max-height: 320px; overflow-y: auto;">
+          <table class="data-table" id="piTable">
+            <thead>
+              <tr>
+                <th>樣本編號</th>
+                <th>實際值 (Actual)</th>
+                <th>OLS 預測值 (Predicted)</th>
+                <th>95% 區間下界 (Lower PI)</th>
+                <th>95% 區間上界 (Upper PI)</th>
+                <th>區間寬度</th>
+                <th>命中狀態</th>
+              </tr>
+            </thead>
+            <tbody id="piTableBody">
+              <!-- Rendered by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 7: Live Simulator -->
+  <section class="section" id="simulator">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <span class="section-tag">Interactive Deployment Engine</span>
+          <h2 id="simSectionTitle"><i class="fa-solid fa-sliders" style="color: var(--accent-cyan);"></i> 即時推論模擬器</h2>
+          <p class="section-desc" id="simSectionDesc">基於嚴謹估計之 OLS 模型方程式與殘差不確定性，可動態調整各項環境因子數值，即時獲得預測值、95% 預測區間與處置建議。</p>
+        </div>
+      </div>
+
+      <div class="simulator-container">
+        <!-- Preset Buttons -->
+        <div class="sim-presets-bar" id="simPresetsBar">
+          <!-- Rendered by JS -->
+        </div>
+
+        <div class="sim-grid">
+          <!-- Left: 10 Feature Sliders -->
+          <div>
+            <h3 style="font-size: 1.05rem; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between;">
+              <span id="simSlidersHeader">核心參數調整</span>
+              <span style="font-size: 0.78rem; color: var(--text-dim);">即時連動推論</span>
+            </h3>
+            <div class="slider-group-wrap" id="slidersContainer">
+              <!-- Rendered by JS -->
+            </div>
+          </div>
+
+          <!-- Right: Real-time Gauge & Prediction Interval Output -->
+          <div class="sim-output-panel">
+            <span style="font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); font-weight: 700;" id="simTargetOutputLabel">即時推論值</span>
+
+            <!-- Gauge Meter -->
+            <div class="gauge-wrap">
+              <canvas id="gaugeCanvas" class="gauge-canvas" width="240" height="140"></canvas>
+              <div class="gauge-center-text">
+                <div class="gauge-value" id="gaugeValue">0.504</div>
+                <div class="gauge-label" id="gaugeTargetLabel">Target Output</div>
+              </div>
+            </div>
+
+            <!-- Risk Level Badge -->
+            <div id="riskLevelBadge" class="risk-level-badge risk-moderate">
+              <i class="fa-solid fa-circle-exclamation"></i>
+              <span id="riskLevelText">狀態評估中</span>
+            </div>
+
+            <!-- 95% Prediction Interval Display -->
+            <div class="sim-ci-box">
+              <div class="sim-ci-header">
+                <span>95% 預測信賴區間 (Prediction Interval)</span>
+                <span class="sim-ci-val" id="ciRangeText">[-- ~ --]</span>
+              </div>
+              <div class="sim-bar-range-track">
+                <div class="sim-bar-range-fill" id="ciRangeFill" style="left: 20%; width: 60%;"></div>
+                <div class="sim-bar-point" id="ciPoint" style="left: 50%;"></div>
+              </div>
+              <div style="display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--text-dim);" id="ciTrackLimits">
+                <span>0.00</span>
+                <span>0.50</span>
+                <span>1.00</span>
+              </div>
+            </div>
+
+            <!-- Action Advice Box -->
+            <div class="sim-advice-box" id="simAdviceBox">
+              <strong id="simAdviceHeader">實務應變建議：</strong>
+              <p id="simAdviceText">數值計算中...</p>
+            </div>
+
+            <!-- Math Formula Preview -->
+            <div style="margin-top: 20px; font-size: 0.75rem; color: var(--text-dim); text-align: left; width: 100%;">
+              <strong>計算方程式：</strong>
+              <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--text-muted); margin-top: 4px; word-break: break-all;" id="simFormulaPreview">
+                OLS Formula
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 8: NotebookLM & Literature Comparison -->
+  <section class="section" id="literature">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <span class="section-tag">Literature & Comparative Study</span>
+          <h2 id="litSectionTitle"><i class="fa-solid fa-book-open-reader" style="color: var(--accent-cyan);"></i> 研究文獻綜述與批判性比較</h2>
+          <p class="section-desc" id="litSectionDesc">借鏡領域文獻與開源社群方案，客觀評析多元線性迴歸、特徵工程與複雜機器學習模型之權衡。</p>
+        </div>
+      </div>
+
+      <div class="review-cards-grid" id="literatureContainer">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 9: Deliverables & Download -->
+  <section class="section" id="downloads">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <span class="section-tag">Artifacts & Deliverables</span>
+          <h2><i class="fa-solid fa-folder-open" style="color: var(--accent-cyan);"></i> 作業交付檔案與完整成果清單</h2>
+          <p class="section-desc">本專案所有程式碼、模型訓練權重、評估數據報表與完整分析報告均已妥善封裝。</p>
+        </div>
+      </div>
+
+      <div class="files-grid" id="downloadsContainer">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container footer-content">
+      <div>
+        <strong style="color: var(--text-main);" id="footerBrand">洪水與人機互動分析平台 (Regression Analytics Studio)</strong>
+        <div style="margin-top: 4px;">學生編號：7115056187 | 資料探勘作業二 (HW2)</div>
+      </div>
+      <div>
+        <span>基於 CRISP-DM 六階段規範建置 | 支援雙資料集切換</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Lightbox Modal -->
+  <div id="imageModal" class="modal" onclick="closeModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeModalDirect()">&times;</button>
+      <div class="modal-img-wrap">
+        <img id="modalImg" src="" alt="Zoomed Chart">
+      </div>
+      <div class="modal-body">
+        <h3 id="modalTitle">圖表標題</h3>
+        <p id="modalDesc">圖表詳細說明內容</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
