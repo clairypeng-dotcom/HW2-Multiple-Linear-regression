@@ -57,9 +57,9 @@
         <div class="project-switcher-wrap" title="切換分析主題">
           <i class="fa-solid fa-layer-group switcher-icon"></i>
           <select id="projectSelector" class="project-select" aria-label="切換分析專案">
-            <option value="flood">🌊 洪水機率預測 (Flood Probability)</option>
+            <option value="flood" selected>🌊 洪水機率預測 (Flood Probability)</option>
             <option value="hai">🤖 人機互動信任度 (Human-AI Trust)</option>
-            <option value="custom" selected>🌐 自訂資料集分析 (Custom Dataset URL / Upload)</option>
+            <option value="custom">🌐 自訂資料集分析 (Custom Dataset URL / Upload)</option>
           </select>
         </div>
 
@@ -97,7 +97,7 @@
       </p>
 
       <!-- Custom Dataset Input Control Bar -->
-      <div id="customDatasetBar" class="custom-dataset-bar">
+      <div id="customDatasetBar" class="custom-dataset-bar hidden">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
           <div>
             <strong style="font-size: 1.05rem; color: var(--text-main);"><i class="fa-solid fa-cloud-arrow-down" style="color: var(--accent-cyan); margin-right: 8px;"></i>自訂資料集輸入與即時分析引擎</strong>

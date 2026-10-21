@@ -4,7 +4,7 @@
  * Author: 7115056187
  */
 
-let currentProjectId = 'custom';
+let currentProjectId = 'flood';
 let currentSimPrediction = 0;
 let fsChartInstance = null;
 let currentCrispStep = 1;
